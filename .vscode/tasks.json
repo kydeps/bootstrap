@@ -1,0 +1,17 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cmake-lint",
+            "type": "shell",
+            "command": "/Users/kamen/.local/bin/cmake-lint ${file} --config-files ${workspaceFolder}/.cmake-lint"
+        },
+        {
+            "label": "cmake-format",
+            "type": "shell",
+            "command": "/Users/kamen/.local/bin/cmake-format ${file} --in-place --config-files ${workspaceFolder}/.cmake-lint"
+        }
+    ]
+}
