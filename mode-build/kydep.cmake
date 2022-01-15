@@ -2,8 +2,6 @@ include(ExternalProject)
 include(tools)
 include(configure)
 
-Configure("")
-
 # KyDep -- main implementation of KyDep macro
 #
 # This is a shim around ExternalProject_Add with some enchancements Note: if the
@@ -27,6 +25,7 @@ macro(KyDep KYDEP)
         ExternalProject_Add(
             ${KYDEP}
             PREFIX "${_DIR}"
+            INSTALL_DIR "${ROOT_BINARY_DIR}/i/${_KEY}"
             BINARY_DIR "${_DIR}/b"
             SOURCE_DIR "${_DIR}/s"
             STAMP_DIR "${_DIR}/ts"
@@ -47,7 +46,10 @@ macro(KyDep KYDEP)
     PopContext()
 endmacro()
 
-# KyDepRegister -- a shim for KyDepRegister when run in build mode
+# KyDepRegister shim
 macro(KyDepRegister)
+endmacro()
 
+# KyDeps shim
+macro(KyDeps)
 endmacro()

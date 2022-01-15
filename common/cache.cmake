@@ -1,5 +1,7 @@
 include_guard(GLOBAL)
 
+include(tools)
+
 # CacheFetch -- attempt to load a package from various cache locations
 #
 #   - if cache is disabled (KYDEPS_CACHE=OFF)
@@ -53,7 +55,7 @@ function(CacheFetch KYDEP)
         endif()
     endif()
 
-    message(VERBOSE "${_KEY}")
+    message(STATUS "${_KEY}")
 endfunction()
 
 # CacheUpdate -- create local cache artifacts in /c from /i
@@ -87,7 +89,7 @@ function(CacheUpdate KYDEP)
             file(SHA256 "${ROOT_BINARY_DIR}/c/${_KEY}.zip" SHA256)
 
             file(
-                APPEND "${ROOT_BINARY_DIR}/c/cache.cmake"
+                WRITE "${ROOT_BINARY_DIR}/c/${_KEY}.cmake"
                 "
 ${${KYDEP}_MANIFEST}
 #
@@ -101,5 +103,5 @@ KyDepRegister(
         AddContext("disabled")
     endif()
 
-    message(VERBOSE "${_KEY}")
+    message(STATUS "${_KEY}")
 endfunction()

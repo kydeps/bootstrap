@@ -1,124 +1,41 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.22)
 project(
     kydep_bootstrap
-    VERSION 2.1
+    VERSION 2.4
     HOMEPAGE_URL https://github.com/kyotov/kydep-bootstrap)
 
-include("${kydep_bootstrap_SOURCE_DIR}/tools.cmake")
-include("${kydep_bootstrap_SOURCE_DIR}/cache.cmake")
-include("${kydep_bootstrap_SOURCE_DIR}/configure.cmake")
+list(APPEND CMAKE_MODULE_PATH "${kydep_bootstrap_SOURCE_DIR}/common")
+
+include(tools)
 
 set(CMAKE_MESSAGE_CONTEXT_SHOW ON)
 SetInParent(CMAKE_MESSAGE_CONTEXT_SHOW)
 
+include(configure)
 Configure("")
-# TODO(kamen): it is weird that we need the next line...
-SetInParent(KYDEPS_BUILD_TESTS)
 
-AddContext("CMake(${CMAKE_PROJECT_NAME})")
+AddContext("Cmake(${CMAKE_PROJECT_NAME})")
+
+if(KYDEPS_CI_UNIVERSE_CONFIGURE)
+    message(STATUS "MODE: CI Universe Configure")
+    list(APPEND CMAKE_MODULE_PATH "${kydep_bootstrap_SOURCE_DIR}/mode-ci-configure")
+elseif(CMAKE_SOURCE_DIR STREQUAL kydeps_SOURCE_DIR AND NOT KYDEPS_CI_UNIVERSE_BUILD)
+    message(STATUS "MODE: Build")
+    list(APPEND CMAKE_MODULE_PATH "${kydep_bootstrap_SOURCE_DIR}/mode-build")
+else()
+    message(STATUS "MODE: Configure")
+    list(APPEND CMAKE_MODULE_PATH "${kydep_bootstrap_SOURCE_DIR}/mode-configure")
+endif()
+
+include(kydep)
+
+IncludeGlob("${KYDEPS_CACHE_REGISTRY}")
+
+# TODO(kamen): figure out how we can put this in configure... 
+#              currently fails if there is no parent scope!
 SetInParent(CMAKE_MESSAGE_CONTEXT)
-
-set(ROOT_BINARY_DIR "${CMAKE_BINARY_DIR}")
 SetInParent(ROOT_BINARY_DIR)
-
-# KyDep -- shim for KyDep macro when running in main project context
-#
-macro(KyDep KYDEP)
-    AddContext("KyDep::declare")
-    Configure("${KYDEP}")
-    DefineVars(${KYDEP} ${ARGN})
-    CacheFetch(${KYDEP})
-    list(APPEND KYDEPS "${KYDEP}")
-    PopContext()
-endmacro()
-
-# KyDepRegister -- used by generated `cache.cmake` from CacheUpdate
-#
-function(KyDepRegister)
-    AddFunctionContext()
-    Configure("")
-
-    list(LENGTH ARGN _COUNT)
-    KyAssert(_COUNT EQUAL 3)
-
-    list(GET ARGN 0 _HASH)
-    list(GET ARGN 1 ${_HASH}_URL)
-    list(GET ARGN 2 ${_HASH}_SHA256)
-
-    message(STATUS "+ ${${_HASH}_URL}")
-
-    SetInParent(${_HASH}_URL)
-    SetInParent(${_HASH}_SHA256)
-endfunction()
-
-# builds dependencies (if necessary) updates ${CMAKE_PREFIX_PATH} with their
-# locations
-#
-macro(KyDeps)
-    AddContext("KyDep::finalize")
-    Configure("")
-
-    if(KYDEPS_CACHE AND "-${KYDEPS_CACHE_BUCKET}-" STREQUAL "--")
-        message(
-            WARNING
-                "
-    KYDEPS_CACHE is ON
-        *but*
-    KYDEPS_CACHE_BUCKET is not defined...
-        *therefore*
-    - remote cache is disabled
-    - no packages will be fetched from outside your build
-                ")
-    endif()
-
-    set(CMD
-        "${CMAKE_COMMAND}" #
-        "--log-level ${KYDEPS_LOG_LEVEL}" #
-        "-S ${kydeps_SOURCE_DIR}" #
-        "-B ${kydeps_BINARY_DIR}" #
-        "-D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" #
-        "-D CMAKE_MODULE_PATH=${kydep_bootstrap_SOURCE_DIR}" #
-        "-D CMAKE_MESSAGE_CONTEXT_SHOW=ON" #
-        "-D ROOT_BINARY_DIR=${ROOT_BINARY_DIR}" #
-        "-D KYDEPS_BUILD=${KYDEPS_BUILD}" #
-        "-D KYDEPS_BUILD_ONE_ENABLED=${KYDEPS_BUILD_ONE_ENABLED}" #
-        "-D KYDEPS_TARGETS=${KYDEPS_TARGETS}" #
-        "-G ${CMAKE_GENERATOR}")
-    message(DEBUG "${CMD}")
-
-    # TODO(kamen): platform dependency on sed below...
-    #
-    execute_process(
-        COMMAND_ERROR_IS_FATAL ANY
-        COMMAND ${CMD}
-        COMMAND "sed" "-u" "s_^_\t(KyDeps::Config) _")
-    execute_process(
-        COMMAND_ERROR_IS_FATAL ANY
-        COMMAND
-            ${CMAKE_COMMAND} #
-            --build ${kydeps_BINARY_DIR} #
-            --config ${CMAKE_BUILD_TYPE} #
-            --target ${KYDEPS_TARGETS} #
-        COMMAND "sed" "-u" "s_^_\t(KyDeps::Build) _")
-
-    file(MAKE_DIRECTORY "${ROOT_BINARY_DIR}/i")
-    file(MAKE_DIRECTORY "${ROOT_BINARY_DIR}/c")
-    file(REMOVE "${ROOT_BINARY_DIR}/c/cache.cmake")
-
-    if(NOT KYDEPS_TARGETS STREQUAL "all")
-        set(KYDEPS ${KYDEPS_TARGETS})
-    endif()
-
-    foreach(KYDEP ${KYDEPS})
-        list(APPEND CMAKE_PREFIX_PATH
-             "${ROOT_BINARY_DIR}/i/${KYDEP}.${${KYDEP}_HASH}")
-        CacheUpdate(${KYDEP})
-    endforeach()
-
-    SetInParent(CMAKE_PREFIX_PATH)
-    SetInParent(KYDEPS)
-
-    PopContext()
-endmacro()
+SetInParent(KYDEPS_BUILD_TESTS)
+SetInParent(KYDEPS_CACHE_BUCKET)
 
 cmake_language(DEFER DIRECTORY ${kydeps_SOURCE_DIR} CALL KyDeps)

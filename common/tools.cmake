@@ -8,9 +8,8 @@ endmacro()
 
 # PopContext -- a shorthand to remove from CMAKE_MESSAGE_CONTEXT
 #
-# Note: this is only necessary in macros, because functions
-# have their own scope and the original CMAKE_MESSAGE_CONTEXT is
-# restored on function return.
+# Note: this is only necessary in macros, because functions have their own scope
+# and the original CMAKE_MESSAGE_CONTEXT is restored on function return.
 #
 macro(PopContext)
     list(POP_BACK CMAKE_MESSAGE_CONTEXT)
@@ -58,9 +57,8 @@ endmacro()
 
 # SetIfEmpty -- a useful shortcut to set variable defaults if unset
 #
-# Note: normally prints details on weather it used the default
-# or if the variable was already set. Define SET_IF_EMPTY_SILENT
-# to avoid output.
+# Note: normally prints details on weather it used the default or if the
+# variable was already set. Define SET_IF_EMPTY_SILENT to avoid output.
 #
 macro(SetIfEmpty NAME VALUE)
     if("-${${NAME}}-" STREQUAL "--")
@@ -76,18 +74,22 @@ macro(SetIfEmpty NAME VALUE)
     endif()
 endmacro()
 
+# IncludeGlob -- accepts a path glob, expands it, and includes each item
+#
+macro(IncludeGlob GLOB)
+    file(GLOB IncludeGlob_RESULTS "${GLOB}")
+    foreach(IncludeGlob_RESULT ${IncludeGlob_RESULTS})
+        include(${IncludeGlob_RESULT})
+    endforeach()
+endmacro()
+
 # ComputeHash -- this is how packages hashes are computed.
 #
-# The current algorithm hashes:
-# - All parameters passed to KyDep
-# - CMAKE_BUILD_TYPE
-# - CMAKE_SYSTEM
-# - CMAKE_SYSTEM_PROCESSOR
+# The current algorithm hashes: - All parameters passed to KyDep -
+# CMAKE_BUILD_TYPE - CMAKE_SYSTEM - CMAKE_SYSTEM_PROCESSOR
 #
-# TODO: conside if further elements need to be added, e.g.
-# - Something about the compiler (e.g. ABI)
-# - Version of the bootstrap repo?
-# - Something else?
+# TODO: conside if further elements need to be added, e.g. - Something about the
+# compiler (e.g. ABI) - Version of the bootstrap repo? - Something else?
 #
 function(ComputeHash KYDEP)
     AddFunctionContext()
@@ -113,9 +115,9 @@ endfunction()
 
 # DefineVars -- defines package-specific variables needed by KyDep
 #
-# - ${KYDEP}_MANIFEST
-# - ${KYDEP}_HASH
-# - ${KYDEP}_DEPENDENCY
+# * ${KYDEP}_MANIFEST
+# * ${KYDEP}_HASH
+# * ${KYDEP}_DEPENDENCY
 #
 macro(DefineVars KYDEP)
     ComputeHash(${KYDEP} ${ARGN})
