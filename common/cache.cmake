@@ -1,7 +1,5 @@
 include_guard(GLOBAL)
 
-include(tools)
-
 # CacheFetch -- attempt to load a package from various cache locations
 #
 #   - if cache is disabled (KYDEPS_CACHE=OFF)

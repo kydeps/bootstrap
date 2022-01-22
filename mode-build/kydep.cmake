@@ -21,7 +21,7 @@ macro(KyDep KYDEP)
         AddContext("disabled")
     else()
         AddContext("building")
-        set(_DIR "${kydeps_BINARY_DIR}/${_KEY}")
+        set(_DIR "${kydeps_definitions_BINARY_DIR}/${_KEY}")
         ExternalProject_Add(
             ${KYDEP}
             PREFIX "${_DIR}"
@@ -32,6 +32,7 @@ macro(KyDep KYDEP)
             TMP_DIR "${_DIR}/tmp"
             LOG_DIR "${_DIR}/log"
             CMAKE_ARGS
+                "-DCMAKE_MSVC_RUNTIME_LIBRARY=${CMAKE_MSVC_RUNTIME_LIBRARY}" #
                 "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" #
                 "-DCMAKE_INSTALL_PREFIX:PATH=${ROOT_BINARY_DIR}/i/${_KEY}" #
                 "-DCMAKE_MESSAGE_CONTEXT_SHOW=ON" #

@@ -44,7 +44,8 @@ endfunction()
 function(KyAssertSet VAR)
     AddFunctionContext()
 
-    KyAssert(NOT ("-${VAR}-" STREQUAL "--"))
+    KySetAssertMessage("${VAR} is not set")
+    KyAssert(NOT ("-${${VAR}}-" STREQUAL "--"))
 endfunction()
 
 # SetInParent -- promote a variable from the current scope to the parent scope

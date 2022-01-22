@@ -38,6 +38,7 @@ macro(KyDep KYDEP)
     AppendRequires(${_DEPENDS})
     list(APPEND KYDEPS_YML "${YML}")
 
+    message(STATUS "${KYDEP}")
     PopContext()
 endmacro()
 
@@ -46,7 +47,8 @@ macro(KyDepRegister)
 
 endmacro()
 
-# KyDeps shim
+# KyDeps -- generate the dynamic CircleCI config
+#
 macro(KyDeps)
     set(YML
         "
@@ -73,8 +75,10 @@ workflows:
         APPEND
         YML
         "
-      - ci/build-status:
+      - ci/build-upload:
           name: end
+          context:
+            - s3-upload
           requires:
             - start")
     AppendRequires(${KYDEPS})

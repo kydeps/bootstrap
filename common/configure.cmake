@@ -11,13 +11,25 @@ macro(Configure KYDEP)
 
     SetIfEmpty(CMAKE_BUILD_TYPE Debug)
 
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(KYDEPS_CXX_FLAGS "/MTd")
+        else()
+            set(KYDEPS_CXX_FLAGS "/MT")
+        endif()
+    endif()
+
+    add_compile_options()
+
     SetIfEmpty(KYDEPS_BUILD ON)
 
     SetIfEmpty(KYDEPS_CACHE ON)
 
     SetIfEmpty(KYDEPS_BUILD_TESTS OFF)
 
-    SetIfEmpty(KYDEPS_LOG_LEVEL DEBUG)
+    SetIfEmpty(KYDEPS_LOG_LEVEL STATUS)
 
     SetIfEmpty(KYDEPS_TARGETS all)
 
@@ -25,7 +37,9 @@ macro(Configure KYDEP)
 
     SetIfEmpty(KYDEPS_CI_UNIVERSE_CONFIGURE OFF)
 
-    SetIfEmpty(KYDEPS_CACHE_BUCKET "file://${KYDEPS_CACHE_DIR}")
+    SetIfEmpty(KYDEPS_CACHE_REGISTRY_DIR "${CMAKE_SOURCE_DIR}/.cache")
+
+    SetIfEmpty(KYDEPS_CACHE_BUCKET "file://${KYDEPS_CACHE_REGISTRY_DIR}")
 
     # TODO(kamen): document the below carefully
     SetIfEmpty(KYDEPS_BUILD_ONE_ENABLED OFF)

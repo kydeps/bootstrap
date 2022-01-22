@@ -8,7 +8,7 @@ macro(KyDep KYDEP)
     AddContext("KyDep::declare")
     Configure("${KYDEP}")
     DefineVars(${KYDEP} ${ARGN})
-    IncludeGlob("${KYDEPS_CACHE_REGISTRY}/${KYDEP}.${${KYDEP}_HASH}.cmake")
+    IncludeGlob("${KYDEPS_CACHE_REGISTRY_DIR}/${KYDEP}.${${KYDEP}_HASH}.cmake")
     CacheFetch(${KYDEP})
     list(APPEND KYDEPS "${KYDEP}")
     PopContext()
@@ -56,28 +56,33 @@ macro(KyDeps)
     set(CMD
         "${CMAKE_COMMAND}" #
         "--log-level ${KYDEPS_LOG_LEVEL}" #
-        "-S ${kydeps_SOURCE_DIR}" #
-        "-B ${kydeps_BINARY_DIR}" #
+        "-S ${kydeps_definitions_SOURCE_DIR}" #
+        "-B ${kydeps_definitions_BINARY_DIR}" #
+        "-D CMAKE_MSVC_RUNTIME_LIBRARY=${CMAKE_MSVC_RUNTIME_LIBRARY}" #
         "-D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" #
         "-D ROOT_BINARY_DIR=${ROOT_BINARY_DIR}" #
         "-D KYDEPS_BUILD=${KYDEPS_BUILD}" #
         "-D KYDEPS_BUILD_ONE_ENABLED=${KYDEPS_BUILD_ONE_ENABLED}" #
         "-G ${CMAKE_GENERATOR}")
-    message(DEBUG "${CMD}")
+    message(STATUS "${CMD}")
 
+    message(STATUS "${KYDEPS_CXX_FLAGS}")
     # TODO(kamen): platform dependency on sed below...
     #
     execute_process(
         COMMAND_ERROR_IS_FATAL ANY
-        COMMAND ${CMD}
-        "-D CMAKE_MODULE_PATH=${kydep_bootstrap_SOURCE_DIR}/common;${kydep_bootstrap_SOURCE_DIR}/mode-build" #
-        "-D KYDEPS_TARGETS=${KYDEPS_TARGETS}" #
+        COMMAND
+            ${CMD}
+            "-D CMAKE_MODULE_PATH=${kydeps_bootstrap_SOURCE_DIR}/common;${kydeps_bootstrap_SOURCE_DIR}/mode-build" #
+            "-D KYDEPS_TARGETS=${KYDEPS_TARGETS}" #
         COMMAND "sed" "-u" "s_^_\t(KyDeps::Config) _")
     execute_process(
         COMMAND_ERROR_IS_FATAL ANY
         COMMAND
             ${CMAKE_COMMAND} #
-            --build ${kydeps_BINARY_DIR} #
+            "-E" "env" "CXXFLAGS=${KYDEPS_CXX_FLAGS}" "CFLAGS=${KYDEPS_CXX_FLAGS}"#
+            ${CMAKE_COMMAND} #
+            --build ${kydeps_definitions_BINARY_DIR} #
             --config ${CMAKE_BUILD_TYPE} #
             --target ${KYDEPS_TARGETS} #
         COMMAND "sed" "-u" "s_^_\t(KyDeps::Build) _")
@@ -90,8 +95,8 @@ macro(KyDeps)
     endif()
 
     foreach(KYDEP ${KYDEPS})
-        list(APPEND CMAKE_PREFIX_PATH
-             "${ROOT_BINARY_DIR}/i/${KYDEP}.${${KYDEP}_HASH}")
+        set(_KEY "${KYDEP}.${${KYDEP}_HASH}")
+        list(APPEND CMAKE_PREFIX_PATH "${ROOT_BINARY_DIR}/i/${_KEY}")
         CacheUpdate(${KYDEP})
     endforeach()
 
