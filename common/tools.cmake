@@ -105,7 +105,7 @@ function(ComputeHash KYDEP)
         ${ARGN} #
         "----------")
     list(JOIN _MANIFEST_LIST "\n#  " ${KYDEP}_MANIFEST)
-    string(REPLACE "${ROOT_BINARY_DIR}" "..." ${KYDEP}_MANIFEST
+    string(REPLACE "${KYDEPS_BINARY_DIR}" "..." ${KYDEP}_MANIFEST
                    "${${KYDEP}_MANIFEST}")
     string(SHA1 ${KYDEP}_HASH "${${KYDEP}_MANIFEST}")
     message(DEBUG "${${KYDEP}_MANIFEST}")
@@ -122,7 +122,7 @@ endfunction()
 #
 macro(DefineVars KYDEP)
     ComputeHash(${KYDEP} ${ARGN})
-    set(_PATH "${ROOT_BINARY_DIR}/i/${KYDEP}.${${KYDEP}_HASH}")
+    set(_PATH "${KYDEPS_BINARY_DIR}/i/${KYDEP}.${${KYDEP}_HASH}")
     set(${KYDEP}_DEPENDENCY CMAKE_ARGS "-DCMAKE_PREFIX_PATH:PATH=${_PATH}"
                             DEPENDS ${KYDEP})
 endmacro()

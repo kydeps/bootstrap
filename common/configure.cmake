@@ -33,7 +33,7 @@ macro(Configure KYDEP)
 
     SetIfEmpty(KYDEPS_TARGETS all)
 
-    SetIfEmpty(ROOT_BINARY_DIR "${CMAKE_BINARY_DIR}")
+    SetIfEmpty(KYDEPS_BINARY_DIR "${CMAKE_BINARY_DIR}")
 
     SetIfEmpty(KYDEPS_CI_UNIVERSE_CONFIGURE OFF)
 

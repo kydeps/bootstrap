@@ -23,10 +23,10 @@ function(CacheFetch KYDEP)
 
     if(NOT KYDEPS_CACHE)
         AddContext("disabled")
-    elseif(EXISTS "${ROOT_BINARY_DIR}/i/${_KEY}")
+    elseif(EXISTS "${KYDEPS_BINARY_DIR}/i/${_KEY}")
         AddContext("exists::skipped")
     else()
-        if(EXISTS "${ROOT_BINARY_DIR}/c/${_KEY}.zip")
+        if(EXISTS "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip")
             AddContext("local::hit")
         elseif("-${${${KYDEP}_HASH}_URL}-" STREQUAL "--")
             AddContext("remote::miss")
@@ -35,21 +35,21 @@ function(CacheFetch KYDEP)
 
             file(
                 DOWNLOAD "${${${KYDEP}_HASH}_URL}"
-                "${ROOT_BINARY_DIR}/c/${_KEY}.zip"
+                "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip"
                 EXPECTED_HASH "SHA256=${${${KYDEP}_HASH}_SHA256}"
                 STATUS _STATUS)
 
             list(GET _STATUS 0 _STATUS_CODE)
 
             if(NOT _STATUS_CODE EQUAL 0)
-                file(REMOVE "${ROOT_BINARY_DIR}/c/${_KEY}.zip")
+                file(REMOVE "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip")
                 KyAssert(FALSE)
             endif()
         endif()
 
-        if(EXISTS "${ROOT_BINARY_DIR}/c/${_KEY}.zip")
-            file(ARCHIVE_EXTRACT INPUT "${ROOT_BINARY_DIR}/c/${_KEY}.zip"
-                    DESTINATION "${ROOT_BINARY_DIR}")
+        if(EXISTS "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip")
+            file(ARCHIVE_EXTRACT INPUT "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip"
+                    DESTINATION "${KYDEPS_BINARY_DIR}")
         endif()
     endif()
 
@@ -66,7 +66,7 @@ function(CacheUpdate KYDEP)
     set(_KEY "${KYDEP}.${${KYDEP}_HASH}")
 
     if(KYDEPS_CACHE)
-        if(EXISTS "${ROOT_BINARY_DIR}/c/${_KEY}.zip")
+        if(EXISTS "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip")
             AddContext("exists::skipped")
         else()
             AddContext("updated")
@@ -78,16 +78,16 @@ function(CacheUpdate KYDEP)
             file(
                 ARCHIVE_CREATE
                 OUTPUT
-                "${ROOT_BINARY_DIR}/c/${_KEY}.zip"
+                "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip"
                 PATHS
-                "${ROOT_BINARY_DIR}/i/${_KEY}"
+                "${KYDEPS_BINARY_DIR}/i/${_KEY}"
                 FORMAT
                 "zip")
 
-            file(SHA256 "${ROOT_BINARY_DIR}/c/${_KEY}.zip" SHA256)
+            file(SHA256 "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip" SHA256)
 
             file(
-                WRITE "${ROOT_BINARY_DIR}/c/${_KEY}.cmake"
+                WRITE "${KYDEPS_BINARY_DIR}/c/${_KEY}.cmake"
                 "
 ${${KYDEP}_MANIFEST}
 #

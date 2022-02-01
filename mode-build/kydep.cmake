@@ -14,7 +14,7 @@ macro(KyDep KYDEP)
     DefineVars(${KYDEP} ${ARGN})
     set(_KEY "${KYDEP}.${${KYDEP}_HASH}")
 
-    if(EXISTS "${ROOT_BINARY_DIR}/i/${_KEY}")
+    if(EXISTS "${KYDEPS_BINARY_DIR}/i/${_KEY}")
         AddContext("exists::noop")
         add_custom_target(${KYDEP} COMMENT "noop")
     elseif(NOT KYDEPS_BUILD)
@@ -25,7 +25,7 @@ macro(KyDep KYDEP)
         ExternalProject_Add(
             ${KYDEP}
             PREFIX "${_DIR}"
-            INSTALL_DIR "${ROOT_BINARY_DIR}/i/${_KEY}"
+            INSTALL_DIR "${KYDEPS_BINARY_DIR}/i/${_KEY}"
             BINARY_DIR "${_DIR}/b"
             SOURCE_DIR "${_DIR}/s"
             STAMP_DIR "${_DIR}/ts"
@@ -34,7 +34,7 @@ macro(KyDep KYDEP)
             CMAKE_ARGS
                 "-DCMAKE_MSVC_RUNTIME_LIBRARY=${CMAKE_MSVC_RUNTIME_LIBRARY}" #
                 "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" #
-                "-DCMAKE_INSTALL_PREFIX:PATH=${ROOT_BINARY_DIR}/i/${_KEY}" #
+                "-DCMAKE_INSTALL_PREFIX:PATH=${KYDEPS_BINARY_DIR}/i/${_KEY}" #
                 "-DCMAKE_MESSAGE_CONTEXT_SHOW=ON" #
                 "-DCMAKE_MESSAGE_CONTEXT=CMake(${KYDEP})" #
                 "-DCMAKE_INSTALL_MESSAGE=NEVER" #

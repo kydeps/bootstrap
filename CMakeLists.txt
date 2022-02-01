@@ -32,7 +32,7 @@ include(kydep)
 # TODO(kamen): figure out how we can put this in configure... 
 #              currently fails if there is no parent scope!
 SetInParent(CMAKE_MESSAGE_CONTEXT)
-SetInParent(ROOT_BINARY_DIR)
+SetInParent(KYDEPS_BINARY_DIR)
 SetInParent(KYDEPS_BUILD_TESTS)
 SetInParent(KYDEPS_CACHE_REGISTRY)
 SetInParent(KYDEPS_CACHE_BUCKET)

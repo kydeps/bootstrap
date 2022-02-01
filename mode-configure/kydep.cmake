@@ -60,7 +60,7 @@ macro(KyDeps)
         "-B ${kydeps_definitions_BINARY_DIR}" #
         "-D CMAKE_MSVC_RUNTIME_LIBRARY=${CMAKE_MSVC_RUNTIME_LIBRARY}" #
         "-D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" #
-        "-D ROOT_BINARY_DIR=${ROOT_BINARY_DIR}" #
+        "-D KYDEPS_BINARY_DIR=${KYDEPS_BINARY_DIR}" #
         "-D KYDEPS_BUILD=${KYDEPS_BUILD}" #
         "-D KYDEPS_BUILD_ONE_ENABLED=${KYDEPS_BUILD_ONE_ENABLED}" #
         "-G ${CMAKE_GENERATOR}")
@@ -87,8 +87,8 @@ macro(KyDeps)
             --target ${KYDEPS_TARGETS} #
         COMMAND "sed" "-u" "s_^_\t(KyDeps::Build) _")
 
-    file(MAKE_DIRECTORY "${ROOT_BINARY_DIR}/i")
-    file(MAKE_DIRECTORY "${ROOT_BINARY_DIR}/c")
+    file(MAKE_DIRECTORY "${KYDEPS_BINARY_DIR}/i")
+    file(MAKE_DIRECTORY "${KYDEPS_BINARY_DIR}/c")
 
     if(NOT KYDEPS_TARGETS STREQUAL "all")
         set(KYDEPS ${KYDEPS_TARGETS})
@@ -96,7 +96,7 @@ macro(KyDeps)
 
     foreach(KYDEP ${KYDEPS})
         set(_KEY "${KYDEP}.${${KYDEP}_HASH}")
-        list(APPEND CMAKE_PREFIX_PATH "${ROOT_BINARY_DIR}/i/${_KEY}")
+        list(APPEND CMAKE_PREFIX_PATH "${KYDEPS_BINARY_DIR}/i/${_KEY}")
         CacheUpdate(${KYDEP})
     endforeach()
 
