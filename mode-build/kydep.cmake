@@ -32,6 +32,7 @@ macro(KyDep KYDEP)
             TMP_DIR "${_DIR}/tmp"
             LOG_DIR "${_DIR}/log"
             CMAKE_ARGS
+                "-DKYDEPS_BINARY_DIR=${KYDEPS_BINARY_DIR}" #
                 "-DCMAKE_MSVC_RUNTIME_LIBRARY=${CMAKE_MSVC_RUNTIME_LIBRARY}" #
                 "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" #
                 "-DCMAKE_INSTALL_PREFIX:PATH=${KYDEPS_BINARY_DIR}/i/${_KEY}" #
