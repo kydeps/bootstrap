@@ -21,9 +21,11 @@ function(CacheFetch KYDEP)
 
     set(_KEY "${KYDEP}.${${KYDEP}_HASH}")
 
+    file(GLOB I_CONTENTS LIST_DIRECTORIES ON "${KYDEPS_BINARY_DIR}/i/${_KEY}/*")
+
     if(NOT KYDEPS_CACHE)
         AddContext("disabled")
-    elseif(EXISTS "${KYDEPS_BINARY_DIR}/i/${_KEY}")
+    elseif(NOT "-${I_CONTENTS}-" STREQUAL "--")
         AddContext("exists::skipped")
     else()
         if(EXISTS "${KYDEPS_BINARY_DIR}/c/${_KEY}.zip")
