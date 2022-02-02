@@ -13,8 +13,8 @@ macro(Configure KYDEP)
 
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
             set(KYDEPS_CXX_FLAGS "/MTd")
         else()
             set(KYDEPS_CXX_FLAGS "/MT")
@@ -23,13 +23,18 @@ macro(Configure KYDEP)
 
     add_compile_options()
 
+    SetIfEmpty(KYDEPS_DEFINITIONS_GIT_REPOSITORY
+               "https://github.com/kydeps/definitions.git")
+
+    SetIfEmpty(KYDEPS_DEFINITIONS_GIT_TAG "main")
+
     SetIfEmpty(KYDEPS_BUILD ON)
 
     SetIfEmpty(KYDEPS_CACHE ON)
 
     SetIfEmpty(KYDEPS_BUILD_TESTS OFF)
 
-    SetIfEmpty(KYDEPS_LOG_LEVEL STATUS)
+    SetIfEmpty(KYDEPS_LOG_LEVEL VERBOSE)
 
     SetIfEmpty(KYDEPS_TARGETS all)
 
